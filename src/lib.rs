@@ -2,19 +2,26 @@
 extern crate serde;
 pub mod metrics;
 
-use std::{
+extern crate core;
+use core::{
     borrow::Borrow,
-    collections::VecDeque,
-    fmt::{Debug, Formatter, Result as FmtResult},
+    fmt::{self, Debug, Formatter},
     iter::Extend,
 };
+extern crate alloc;
+use alloc::collections::VecDeque;
 
+#[cfg(feature = "hashbrown")]
+extern crate hashbrown;
+#[cfg(feature = "hashbrown")]
+use hashbrown::HashMap;
 #[cfg(feature = "enable-fnv")]
 extern crate fnv;
 #[cfg(feature = "enable-fnv")]
 use fnv::FnvHashMap;
 
 #[cfg(not(feature = "enable-fnv"))]
+#[cfg(not(feature = "hashbrown"))]
 use std::collections::HashMap;
 
 /// A trait for a *metric* (distance function).
@@ -84,7 +91,7 @@ impl<K> Debug for BKNode<K>
 where
     K: Debug,
 {
-    fn fmt(&self, f: &mut Formatter) -> FmtResult {
+    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         f.debug_map().entry(&self.key, &self.children).finish()
     }
 }

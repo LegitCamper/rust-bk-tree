@@ -1,11 +1,12 @@
-#![feature(test)] extern crate test;
+#![feature(test)]
 extern crate bk_tree;
 extern crate rand;
+extern crate test;
 
-use bk_tree::BKTree;
 use bk_tree::metrics::Levenshtein;
-use test::Bencher;
+use bk_tree::BKTree;
 use rand::{thread_rng, Rng};
+use test::Bencher;
 
 fn make_words<R: Rng>(rng: &mut R, n: i32) -> Vec<String> {
     let mut words: Vec<String> = Vec::new();
@@ -24,9 +25,7 @@ fn bench_find_exact(b: &mut Bencher) {
     let word = words.last().unwrap().clone();
     tree.extend(words);
 
-    b.iter(|| {
-        tree.find_exact(&word)
-    });
+    b.iter(|| tree.find_exact(&word));
 }
 
 #[bench]
@@ -36,11 +35,8 @@ fn bench_find_tol_one(b: &mut Bencher) {
     let word = words.last().unwrap().clone();
     tree.extend(words);
 
-    b.iter(|| {
-        tree.find(&word, 1)
-    });
+    b.iter(|| tree.find(&word, 1));
 }
-
 
 #[bench]
 fn bench_find_tol_two(b: &mut Bencher) {
@@ -49,9 +45,7 @@ fn bench_find_tol_two(b: &mut Bencher) {
     let word = words.last().unwrap().clone();
     tree.extend(words);
 
-    b.iter(|| {
-        tree.find(&word, 2)
-    });
+    b.iter(|| tree.find(&word, 2));
 }
 
 #[bench]
