@@ -38,7 +38,7 @@ use std::collections::HashMap;
 ///
 /// If any of these rules are broken, then the BK-tree may give unexpected
 /// results.
-pub trait Metric<K: ?Sized> {
+pub trait Metric<K: ?Sized + Display> {
     fn distance(&self, a: &K, b: &K) -> u32;
     fn threshold_distance(&self, a: &K, b: &K, threshold: u32) -> Option<u32>;
 }
@@ -206,7 +206,11 @@ where
     /// assert_eq!(tree.find("foo", 1).collect::<Vec<_>>(), alloc::vec![(0, &"foo"), (1, &"fop")]);
     /// assert!(tree.find("foz", 0).next().is_none());
     /// ```
-    pub fn find<'a, 'q, Q: ?Sized>(&'a self, key: &'q Q, tolerance: u32) -> Find<'a, 'q, K, Q, M>
+    pub fn find<'a, 'q, Q: ?Sized + Display>(
+        &'a self,
+        key: &'q Q,
+        tolerance: u32,
+    ) -> Find<'a, 'q, K, Q, M>
     where
         K: Borrow<Q>,
         M: Metric<Q>,
@@ -242,7 +246,7 @@ where
     /// assert_eq!(tree.find_exact("foz"), None);
     /// assert_eq!(tree.find_exact("foo"), Some(&"foo"));
     /// ```
-    pub fn find_exact<Q: ?Sized>(&self, key: &Q) -> Option<&K>
+    pub fn find_exact<Q: ?Sized + Display>(&self, key: &Q) -> Option<&K>
     where
         K: Borrow<Q>,
         M: Metric<Q>,
@@ -289,7 +293,7 @@ pub struct Find<'a, 'q, K: 'a + Debug + Display, Q: 'q + ?Sized, M: 'a> {
     key: &'q Q,
 }
 
-impl<'a, 'q, K: Debug + Display, Q: ?Sized, M> Iterator for Find<'a, 'q, K, Q, M>
+impl<'a, 'q, K: Debug + Display, Q: ?Sized + Display, M> Iterator for Find<'a, 'q, K, Q, M>
 where
     K: Borrow<Q>,
     M: Metric<Q>,
@@ -332,7 +336,8 @@ where
 mod tests {
     extern crate bincode;
 
-    use std::fmt::Debug;
+    use alloc::vec::Vec;
+    use core::fmt::Debug;
     use {BKNode, BKTree};
 
     fn assert_eq_sorted<'t, T: 't, I>(left: I, right: &[(u32, T)])
@@ -390,7 +395,7 @@ mod tests {
     #[test]
     fn tree_extend() {
         let mut tree: BKTree<&str> = Default::default();
-        tree.extend(vec!["foo", "fop"]);
+        tree.extend(alloc::vec!["foo", "fop"]);
         match tree.root {
             Some(ref root) => {
                 assert_eq!(root.key, "foo");
