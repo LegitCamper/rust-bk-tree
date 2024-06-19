@@ -5,7 +5,7 @@ extern crate std;
 
 use core::{
     borrow::Borrow,
-    fmt::{self, Debug, Formatter},
+    fmt::{self, Debug, Display, Formatter},
     iter::Extend,
 };
 extern crate alloc;
@@ -45,7 +45,7 @@ pub trait Metric<K: ?Sized> {
 
 /// A node within the [BK-tree](https://en.wikipedia.org/wiki/BK-tree).
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct BKNode<K: Debug> {
+pub struct BKNode<K: Debug + Display> {
     /// The key determining the node.
     pub key: K,
     /// A hash-map of children, indexed by their distance from this node based
@@ -57,7 +57,7 @@ pub struct BKNode<K: Debug> {
     pub max_child_distance: Option<u32>,
 }
 
-impl<K: Debug> BKNode<K> {
+impl<K: Debug + Display> BKNode<K> {
     /// Constructs a new `BKNode<K>`.
     pub fn new(key: K) -> BKNode<K> {
         BKNode {
@@ -93,7 +93,7 @@ impl<K: Debug> BKNode<K> {
 
 impl<K> Debug for BKNode<K>
 where
-    K: Debug,
+    K: Debug + Display,
 {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         f.debug_map().entry(&self.key, &self.children).finish()
@@ -103,7 +103,7 @@ where
 /// A representation of a [BK-tree](https://en.wikipedia.org/wiki/BK-tree).
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug)]
-pub struct BKTree<K: Debug, M = metrics::Levenshtein> {
+pub struct BKTree<K: Debug + Display, M = metrics::Levenshtein> {
     /// The root node. May be empty if nothing has been put in the tree yet.
     pub root: Option<BKNode<K>>,
     /// The metric being used to determine the distance between nodes on the
@@ -111,7 +111,7 @@ pub struct BKTree<K: Debug, M = metrics::Levenshtein> {
     pub metric: M,
 }
 
-impl<K: Debug, M> BKTree<K, M>
+impl<K: Debug + Display, M> BKTree<K, M>
 where
     M: Metric<K>,
 {
@@ -251,7 +251,7 @@ where
     }
 }
 
-impl<K: Debug, M: Metric<K>> Extend<K> for BKTree<K, M> {
+impl<K: Debug + Display, M: Metric<K>> Extend<K> for BKTree<K, M> {
     /// Adds multiple keys to the tree.
     ///
     /// Given an iterator with items of type `K`, this method simply adds every
@@ -273,14 +273,14 @@ impl<K: Debug, M: Metric<K>> Extend<K> for BKTree<K, M> {
     }
 }
 
-impl<K: AsRef<str> + Debug> Default for BKTree<K> {
+impl<K: AsRef<str> + Debug + Display> Default for BKTree<K> {
     fn default() -> BKTree<K> {
         BKTree::new(metrics::Levenshtein)
     }
 }
 
 /// Iterator for the results of `BKTree::find`.
-pub struct Find<'a, 'q, K: 'a + Debug, Q: 'q + ?Sized, M: 'a> {
+pub struct Find<'a, 'q, K: 'a + Debug + Display, Q: 'q + ?Sized, M: 'a> {
     /// Iterator stack. Because of the inversion of control in play, we must
     /// implement the traversal using an explicit stack.
     candidates: VecDeque<&'a BKNode<K>>,
@@ -289,7 +289,7 @@ pub struct Find<'a, 'q, K: 'a + Debug, Q: 'q + ?Sized, M: 'a> {
     key: &'q Q,
 }
 
-impl<'a, 'q, K: Debug, Q: ?Sized, M> Iterator for Find<'a, 'q, K, Q, M>
+impl<'a, 'q, K: Debug + Display, Q: ?Sized, M> Iterator for Find<'a, 'q, K, Q, M>
 where
     K: Borrow<Q>,
     M: Metric<Q>,
