@@ -4,6 +4,8 @@
 #[cfg(feature = "serde")]
 extern crate serde;
 
+use core::fmt;
+
 use Metric;
 
 extern crate triple_accel;
@@ -30,7 +32,13 @@ use self::triple_accel::{levenshtein, levenshtein::levenshtein_simd_k};
 #[derive(Debug)]
 pub struct Levenshtein;
 
-impl<K: AsRef<str> + ?Sized + core::fmt::Display> Metric<K> for Levenshtein {
+impl fmt::Display for Levenshtein {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "Levenshtein")
+    }
+}
+
+impl<K: AsRef<str> + ?Sized + fmt::Display> Metric<K> for Levenshtein {
     fn distance(&self, a: &K, b: &K) -> u32 {
         let a_bytes = a.as_ref().as_bytes();
         let b_bytes = b.as_ref().as_bytes();
