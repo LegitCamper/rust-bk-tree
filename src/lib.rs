@@ -47,14 +47,14 @@ pub trait Metric<K: ?Sized> {
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct BKNode<K> {
     /// The key determining the node.
-    key: K,
+    pub key: K,
     /// A hash-map of children, indexed by their distance from this node based
     /// on the metric being used by the tree.
     #[cfg(feature = "enable-fnv")]
-    children: FnvHashMap<u32, BKNode<K>>,
+    pub children: FnvHashMap<u32, BKNode<K>>,
     #[cfg(not(feature = "enable-fnv"))]
-    children: HashMap<u32, BKNode<K>>,
-    max_child_distance: Option<u32>,
+    pub children: HashMap<u32, BKNode<K>>,
+    pub max_child_distance: Option<u32>,
 }
 
 impl<K> BKNode<K> {
@@ -105,10 +105,10 @@ where
 #[derive(Debug)]
 pub struct BKTree<K, M = metrics::Levenshtein> {
     /// The root node. May be empty if nothing has been put in the tree yet.
-    root: Option<BKNode<K>>,
+    pub root: Option<BKNode<K>>,
     /// The metric being used to determine the distance between nodes on the
     /// tree.
-    metric: M,
+    pub metric: M,
 }
 
 impl<K, M> BKTree<K, M>
