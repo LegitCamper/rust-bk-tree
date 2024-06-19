@@ -45,7 +45,7 @@ pub trait Metric<K: ?Sized> {
 
 /// A node within the [BK-tree](https://en.wikipedia.org/wiki/BK-tree).
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-struct BKNode<K> {
+pub struct BKNode<K> {
     /// The key determining the node.
     key: K,
     /// A hash-map of children, indexed by their distance from this node based
@@ -105,10 +105,10 @@ where
 #[derive(Debug)]
 pub struct BKTree<K, M = metrics::Levenshtein> {
     /// The root node. May be empty if nothing has been put in the tree yet.
-    pub root: Option<BKNode<K>>,
+    root: Option<BKNode<K>>,
     /// The metric being used to determine the distance between nodes on the
     /// tree.
-    pub metric: M,
+    metric: M,
 }
 
 impl<K, M> BKTree<K, M>
