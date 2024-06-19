@@ -1,8 +1,8 @@
-#[cfg(feature = "serde")]
-extern crate serde;
-pub mod metrics;
+#![no_std]
 
-extern crate core;
+#[cfg(feature = "std")]
+extern crate std;
+
 use core::{
     borrow::Borrow,
     fmt::{self, Debug, Formatter},
@@ -10,6 +10,10 @@ use core::{
 };
 extern crate alloc;
 use alloc::collections::VecDeque;
+
+#[cfg(feature = "serde")]
+extern crate serde;
+pub mod metrics;
 
 #[cfg(feature = "hashbrown")]
 extern crate hashbrown;
@@ -98,6 +102,7 @@ where
 
 /// A representation of a [BK-tree](https://en.wikipedia.org/wiki/BK-tree).
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[derive(Debug)]
 pub struct BKTree<K, M = metrics::Levenshtein> {
     /// The root node. May be empty if nothing has been put in the tree yet.
     root: Option<BKNode<K>>,
@@ -197,8 +202,8 @@ where
     /// tree.add("fop");
     /// tree.add("bar");
     ///
-    /// assert_eq!(tree.find("foo", 0).collect::<Vec<_>>(), vec![(0, &"foo")]);
-    /// assert_eq!(tree.find("foo", 1).collect::<Vec<_>>(), vec![(0, &"foo"), (1, &"fop")]);
+    /// assert_eq!(tree.find("foo", 0).collect::<Vec<_>>(), alloc::vec![(0, &"foo")]);
+    /// assert_eq!(tree.find("foo", 1).collect::<Vec<_>>(), alloc::vec![(0, &"foo"), (1, &"fop")]);
     /// assert!(tree.find("foz", 0).next().is_none());
     /// ```
     pub fn find<'a, 'q, Q: ?Sized>(&'a self, key: &'q Q, tolerance: u32) -> Find<'a, 'q, K, Q, M>
@@ -207,7 +212,7 @@ where
         M: Metric<Q>,
     {
         let candidates = if let Some(root) = &self.root {
-            VecDeque::from(vec![root])
+            VecDeque::from(alloc::vec![root])
         } else {
             VecDeque::new()
         };

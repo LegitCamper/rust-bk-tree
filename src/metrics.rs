@@ -27,6 +27,7 @@ use self::triple_accel::{levenshtein, levenshtein::levenshtein_simd_k};
 /// [1]: https://en.wikipedia.org/wiki/Levenshtein_distance
 /// [2]: https://en.wikipedia.org/wiki/Wagner%E2%80%93Fischer_algorithm
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[derive(Debug)]
 pub struct Levenshtein;
 
 impl<K: AsRef<str> + ?Sized> Metric<K> for Levenshtein {
